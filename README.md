@@ -1,6 +1,6 @@
 # Stalemate
 
-[![Check Repository Staleness](https://github.com/r0bijntje/stalemate/actions/workflows/check-repos.yml/badge.svg)](https://github.com/r0bijntje/stalemate/actions/workflows/check-repos.yml)
+[![Check Repository Staleness](https://github.com/robinvandernoord/stalemate/actions/workflows/check-repos.yml/badge.svg)](https://github.com/robinvandernoord/stalemate/actions/workflows/check-repos.yml)
 
 *Don't let your repositories reach a stalemate – keep them in play!*
 
