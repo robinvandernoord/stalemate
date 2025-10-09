@@ -1,0 +1,11 @@
+[project]
+name = "stalemate"
+version = "0.1.0"
+description = "Automatically monitor GitHub repositories for staleness and Python version compatibility"
+readme = "README.md"
+requires-python = ">=3.14"
+classifiers = [
+    "Programming Language :: Python :: 3.14",
+]
+
+dependencies = []
