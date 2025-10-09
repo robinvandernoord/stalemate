@@ -18,6 +18,9 @@ jobs:
         with:
           version: "latest"
 
+      - name: Install latest Python
+        run: uv python install
+
       - name: Run staleness check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
