@@ -26,7 +26,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 class StalemateConfig(configuraptor.TypedConfig):
     # Your GitHub username to monitor
-    github_username: str
+    github_username: str | list[str]
 
     # Days without commits before considering a repo stale
     max_age_days: int = 365
@@ -50,6 +50,7 @@ class RepoMonitor:
         load_dotenv()
 
         self.config = self.load_config()
+
         self.github_token = os.getenv("GITHUB_TOKEN")
 
         # Validate that GITHUB_TOKEN is provided
@@ -206,14 +207,14 @@ class RepoMonitor:
         response.raise_for_status()
         return response
 
-    def fetch_all_repos(self) -> list[dict]:
+    def fetch_all_repos_for_user(self, username: str) -> list[dict]:
         """Fetch all repositories with pagination"""
         repos = []
         page = 1
         per_page = 100
 
         while True:
-            url = f"https://api.github.com/users/{self.config.github_username}/repos"
+            url = f"https://api.github.com/users/{username}/repos"
             params = {
                 "type": "owner",
                 "page": page,
@@ -222,7 +223,7 @@ class RepoMonitor:
                 "direction": "desc",
             }
 
-            self.logger.info(f"Fetching page {page} of repositories")
+            self.logger.info(f"Fetching page {page} of '{username}' repositories")
             response = self.safe_api_request(url, params)
             page_repos = response.json()
 
@@ -244,6 +245,17 @@ class RepoMonitor:
 
         self.logger.info(f"Total repositories fetched: {len(repos)}")
         return repos
+
+    def fetch_all_repos(self) -> list[dict]:
+        usernames = self.config.github_username
+        if not isinstance(usernames, list):
+            usernames = [usernames]
+
+        result = []
+        for username in usernames:
+            result.extend(self.fetch_all_repos_for_user(username))
+
+        return result
 
     def filter_repos(self, repos: list[dict]) -> list[dict]:
         """Filter repositories based on config"""
@@ -380,9 +392,8 @@ class RepoMonitor:
 
     def process_repository(self, repo: dict) -> None:
         """Process a single repository"""
-        repo_name = repo["name"]
-        owner = self.config.github_username
-        self.logger.info(f"Processing repository: {repo_name}")
+        owner, repo_name = repo["full_name"].split("/", 1)
+        self.logger.info(f"Processing repository: {owner}/{repo_name}")
 
         # Check if it's a Python repo if configured
         pyproject_content = None
@@ -489,6 +500,7 @@ class RepoMonitor:
             self.logger.error(f"API request failed: {e}")
             sys.exit(1)
         except Exception as e:
+            raise e
             self.logger.error(f"Unexpected error: {e}")
             sys.exit(1)
 

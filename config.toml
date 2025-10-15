@@ -1,4 +1,4 @@
-github_username = "robinvandernoord"
+github_username = ["robinvandernoord", "trialandsuccess", "educationwarehouse"]
 max_age_days = 180
 
 # Filter for Python repos only (checks for pyproject.toml)
