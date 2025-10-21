@@ -443,7 +443,11 @@ class RepoMonitor:
             print(
                 f"⚠️  STALE REPOSITORIES (no commits in {self.config.max_age_days}+ days):\n"
             )
-            for repo in self.stale_repos:
+            # Sort by days_since_push in descending order (oldest first)
+            sorted_stale_repos = sorted(
+                self.stale_repos, key=lambda r: r['days_since_push'], reverse=True
+            )
+            for repo in sorted_stale_repos:
                 print(
                     f"- {repo['name']} (last push: {repo['days_since_push']} days ago)"
                 )
