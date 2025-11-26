@@ -32,7 +32,7 @@ Automatically monitor all your public GitHub repositories for staleness and Pyth
    check_python_version = true
    
    # Optional: specific repositories to skip
-   exclude_repos = []
+   exclude_repos = ["robinvandernoord/test-project"]
    
    # Skip forked repositories
    exclude_forks = true

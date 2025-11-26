@@ -273,8 +273,8 @@ class RepoMonitor:
                 continue
 
             # Skip explicitly excluded repos
-            if repo["name"] in self.config.exclude_repos:
-                self.logger.debug(f"Skipping excluded repo: {repo['name']}")
+            if repo["full_name"] in self.config.exclude_repos:
+                self.logger.debug(f"Skipping excluded repo: {repo['full_name']}")
                 continue
 
             filtered.append(repo)
@@ -453,7 +453,7 @@ class RepoMonitor:
                 )
                 print(f"  {repo['html_url']}")
                 print(
-                    f"::warning file={repo['name']}::Repository stale for {repo['days_since_push']} days"
+                    f"::warning file={repo['full_name']}::Repository stale for {repo['days_since_push']} days"
                 )
                 print()
         else:

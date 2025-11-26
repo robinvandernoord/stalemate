@@ -8,7 +8,11 @@ python_only = true
 check_python_version = true
 
 # Optional: repos to skip (e.g., forks you maintain, test repos)
-exclude_repos = []
+exclude_repos = [
+    "educationwarehouse/edwh-nostr-messagebus",
+    "educationwarehouse/wereldvrede",
+    "educationwarehouse/docker-logger",
+]
 
 # Optional: skip fork repos
 exclude_forks = true
