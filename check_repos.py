@@ -13,6 +13,7 @@ import logging
 import os
 import sys
 import time
+import typing as t
 
 import configuraptor
 import configuraptor.errors
@@ -22,6 +23,28 @@ from dotenv import load_dotenv
 from packaging.specifiers import SpecifierSet
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+
+
+class GitHubRepoDict(t.TypedDict):
+    name: str
+    full_name: str
+    html_url: str
+    archived: bool
+    fork: bool
+    pushed_at: str
+
+
+class StaleRepoDict(t.TypedDict):
+    name: str
+    full_name: str
+    html_url: str
+    days_since_push: int
+
+
+class PythonVersionIssueDict(t.TypedDict):
+    name: str
+    html_url: str
+    version_spec: str
 
 
 class StalemateConfig(configuraptor.TypedConfig):
@@ -75,8 +98,8 @@ class RepoMonitor:
         )
         self.session = self.setup_session()
 
-        self.stale_repos: list[dict] = []
-        self.python_version_issues: list[dict] = []
+        self.stale_repos: list[StaleRepoDict] = []
+        self.python_version_issues: list[PythonVersionIssueDict] = []
 
         # Rate limiting state
         self.rate_limit_remaining = None
@@ -207,7 +230,7 @@ class RepoMonitor:
         response.raise_for_status()
         return response
 
-    def fetch_all_repos_for_user(self, username: str) -> list[dict]:
+    def fetch_all_repos_for_user(self, username: str) -> list[GitHubRepoDict]:
         """Fetch all repositories with pagination"""
         repos = []
         page = 1
@@ -246,7 +269,7 @@ class RepoMonitor:
         self.logger.info(f"Total repositories fetched: {len(repos)}")
         return repos
 
-    def fetch_all_repos(self) -> list[dict]:
+    def fetch_all_repos(self) -> list[GitHubRepoDict]:
         usernames = self.config.github_username
         if not isinstance(usernames, list):
             usernames = [usernames]
@@ -257,7 +280,7 @@ class RepoMonitor:
 
         return result
 
-    def filter_repos(self, repos: list[dict]) -> list[dict]:
+    def filter_repos(self, repos: list[GitHubRepoDict]) -> list[GitHubRepoDict]:
         """Filter repositories based on config"""
         filtered = []
 
@@ -390,7 +413,7 @@ class RepoMonitor:
         self.logger.debug(f"Staleness check: {days_since_push} days, stale: {is_stale}")
         return is_stale, days_since_push
 
-    def process_repository(self, repo: dict) -> None:
+    def process_repository(self, repo: GitHubRepoDict) -> None:
         """Process a single repository"""
         owner, repo_name = repo["full_name"].split("/", 1)
         self.logger.info(f"Processing repository: {owner}/{repo_name}")
@@ -409,6 +432,7 @@ class RepoMonitor:
             self.stale_repos.append(
                 {
                     "name": repo_name,
+                    "full_name": repo["full_name"],
                     "html_url": repo["html_url"],
                     "days_since_push": days_since_push,
                 }
