@@ -18,10 +18,10 @@ jobs:
         with:
           version: "latest"
 
-      - name: Install latest Python
-        run: uv python install
+      - name: Install Python 3.15
+        run: uv python install 3.15
 
       - name: Run staleness check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run check_repos.py
+        run: uv run --python 3.15 check_repos.py
